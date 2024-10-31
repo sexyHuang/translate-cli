@@ -1,9 +1,10 @@
 /* eslint-disable max-len */
-const fs = require('fs');
 const path = require('path');
 const {glob} = require('../lib/util/glob');
 const {multiSelect, confirm} = require('../lib/util/query');
 const {overWrite} = require('../lib/file');
+const {matchContent} = require('../lib/util/matchContent');
+
 
 module.exports = async function(params) {
   const {folder, log, output = process.cwd(), useDefault} = params;
@@ -16,8 +17,7 @@ module.exports = async function(params) {
     const {logger} = require('../lib/logger');
     info = logger.info;
   }
-
-
+  console.time('task');
   let ext;
   let langs;
 
@@ -58,28 +58,11 @@ module.exports = async function(params) {
     info(`匹配目录：${folder}`);
     // 匹配目录文件
     // /Users/liguangxing/Feimei/dms-system/src/pages/uiMaterial
-    const files = await glob(`${folder}/**/*.{${ext.join(',')}}`);
+    const files = await glob(`${folder}/**/*.{${ext.join(',')}}`, {
+      ignore: ['**/node_modules/**', '**/*.d.ts'],
+    });
     if (files.length) {
       let allKeys = [];
-      // 工人函数
-      const matchContent = (filePath) => {
-        const fileContent = fs.readFileSync(filePath, {
-          encoding: 'utf8',
-        });
-        const matchRes = fileContent.match(/[^0-9a-zA-Z_$]ts\('(.+?)'/g);
-        if (matchRes && matchRes.length) {
-          const keys = matchRes.map((item) =>
-            item.replace(/(^[^0-9a-zA-Z_$]ts\(')|('$)/g, ''),
-          );
-          if (keys.length) {
-            const res = [...new Set(keys)];
-            info(
-                `当前匹配文件：${filePath}, 匹配结果：${JSON.stringify(res)}`,
-            );
-            return res;
-          }
-        }
-      };
       for (let i = 0; i < files.length; i++) {
         const res = matchContent(files[i]);
         if (res) {
@@ -99,7 +82,7 @@ module.exports = async function(params) {
       info('目录下无匹配文件');
     }
   }
-
+  console.timeEnd('task');
   // 关闭日志
   if (logInFile) {
     const {log4js} = require('../lib/logger');
