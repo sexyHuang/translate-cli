@@ -49,4 +49,21 @@ ts("hello2", ...[{ a: 1 }, "ddd"]);
 
 sddts("hello2222", { a: 1 }, "ddd");
 
+ts("只统计发布列表的；\n不包含内容库导入的");
+
+const applyTypeName = "采购申请";
+
+sddts("aaa", ts("审批系统-已审单据-采购类-") + "bbb");
+
+sddts(
+  "aaa",
+  ts(`222多孔菌科几个快递 看电视剧看到过
+  {{key}}`) + " 1223"
+);
+ts("1+1=2");
+ts("1+—+++++++");
+
+ts("审批系统-已审单据-采购类-" + applyTypeName);
+sddts("aaa", ts("审批系统-已审单据-采购类-" + applyTypeName) + "bbb");
+
 export {};
